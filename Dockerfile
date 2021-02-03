@@ -1,8 +1,12 @@
-FROM python:3.8
+FROM python:latest
 
-EXPOSE 80
+# ADD requirements.txt .
+# ADD main.py .
+# COPY model .
 
-ADD requirements.txt .
+WORKDIR /app
+
+ADD . /app
 RUN python -m pip install -r requirements.txt
 
 CMD ["python", "main.py"]

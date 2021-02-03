@@ -1,4 +1,3 @@
-# from ai import Model
 import jieba
 import pickle
 import json
