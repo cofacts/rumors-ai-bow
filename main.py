@@ -5,6 +5,7 @@ from model.bow import BowModel
 MODEL_ID = '5fc3925cfebe5bfa49164662'
 API_KEY = 'jmWpkStPXiR3T6VJknhSLSow0FPNLkDdF1v76HnuOvI'
 BASE_API_URL = 'https://ai-api-stag.cofacts.org/v1'
+TEST = True
 
 DEFAULT_CATEGORY_MAPPING = {
     0: 'kj287XEBrIRcahlYvQoS',  # 中國影響力
@@ -26,16 +27,15 @@ DEFAULT_CATEGORY_MAPPING = {
     16: 'oj2o7nEBrIRcahlYRAox'  # 轉發協尋、捐款捐贈
 }
 
-def get_tasks():
-  pass
-
 def main():
   model = BowModel()
   while True:
-    get_tasks_url = f'{BASE_API_URL}/tasks?modelId={MODEL_ID}&apiKey={API_KEY}' # + '&test=1'
+    get_tasks_url = f'{BASE_API_URL}/tasks?modelId={MODEL_ID}&apiKey={API_KEY}'
+    if TEST: get_tasks_url += '&test=1'
+
     tasks = requests.get(get_tasks_url).json()
 
-    print(tasks)
+    # print(tasks)
 
     if len(tasks) == 0: break
 
@@ -46,7 +46,10 @@ def main():
     for task in tasks:
       text = task['content']
       count += 1
-      print(count)
+
+      # to avoid oversized requests
+      if count > 100: break
+
       category = DEFAULT_CATEGORY_MAPPING[model.predict_text(text)[0]]
 
       temp = {
@@ -63,6 +66,8 @@ def main():
 
     send_result = requests.post( f'{BASE_API_URL}/tasks', json=result)
     print(send_result.text)
+    
+    if TEST: break
   
   
 if __name__ == '__main__':
