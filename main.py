@@ -1,3 +1,4 @@
+import os
 import requests
 
 from model.bow import BowModel
@@ -27,7 +28,8 @@ DEFAULT_CATEGORY_MAPPING = {
     16: 'oj2o7nEBrIRcahlYRAox'  # 轉發協尋、捐款捐贈
 }
 
-def main():
+
+def predict():
   model = BowModel()
   while True:
     get_tasks_url = f'{BASE_API_URL}/tasks?modelId={MODEL_ID}&apiKey={API_KEY}'
@@ -68,7 +70,21 @@ def main():
     print(send_result.text)
     
     if TEST: break
-  
+
+def register():
+  register_url = f'{BASE_API_URL}/models'
+
+  result = requests.post(register_url, data={
+    "name": "rumors-ai-bow",
+    "realTime": False,
+    "categoryMapping": DEFAULT_CATEGORY_MAPPING
+  })
+
+  print(result)
+
+def main():
+  if os.getenv('CFA_ACTION') == 'register': register()
+  else: predict()
   
 if __name__ == '__main__':
   main()
