@@ -13,3 +13,7 @@ docker run --env CFA_ACTION=start --env CFA_API_KEY=mL3k7tY-7VblR2sjifKMZEri2pD0
 CFA_ACTION=register python main.py
 CFA_ACTION=start CFA_API_KEY=mL3k7tY-7VblR2sjifKMZEri2pD0nX_slj3BwpDDrKg CFA_ID=600430f4a431ea627d06c00e python main.py
 ```
+
+## Train model
+
+python train.py
