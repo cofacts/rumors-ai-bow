@@ -4,27 +4,28 @@ import json
 
 from model.bow import BowModel
 
-MODEL_ID = '5fc3925cfebe5bfa49164662'
-API_KEY = 'jmWpkStPXiR3T6VJknhSLSow0FPNLkDdF1v76HnuOvI'
-BASE_API_URL = 'https://ai-api-stag.cofacts.org/v1'
+CFA_ACTION = os.environ.get('CFA_ACTION') or 'start'
+CFA_ID = os.environ.get('CFA_ID') or '5fc3925cfebe5bfa49164662'
+CFA_NAME = os.environ.get('CFA_NAME') or 'BOW Model'
+CFA_API_KEY = os.environ.get(
+    'CFA_API_KEY') or 'jmWpkStPXiR3T6VJknhSLSow0FPNLkDdF1v76HnuOvI'
+CFA_URL = os.environ.get('CFA_URL') or 'https://ai-api-stag.cofacts.org/v1'
 TEST = True
 
 config = json.loads(open('./model-config.json', 'r').read())
 
-DEFAULT_CATEGORY_MAPPING = dict([(int(k), v)
-                                 for k, v in config['categoryMapping'].items()])
+CATEGORY_MAPPING = dict([(int(k), v)
+                         for k, v in config['categoryMapping'].items()])
 
 
 def predict():
     model = BowModel()
     while True:
-        get_tasks_url = f'{BASE_API_URL}/tasks?modelId={MODEL_ID}&apiKey={API_KEY}'
+        get_tasks_url = f'{CFA_URL}/tasks?modelId={CFA_ID}&apiKey={CFA_API_KEY}'
         if TEST:
             get_tasks_url += '&test=1'
 
         tasks = requests.get(get_tasks_url).json()
-
-        # print(tasks)
 
         if len(tasks) == 0:
             break
@@ -41,7 +42,7 @@ def predict():
             if count > 100:
                 break
 
-            category = DEFAULT_CATEGORY_MAPPING[model.predict_text(text)[0]]
+            category = CATEGORY_MAPPING[model.predict_text(text)[0]]
 
             temp = {
                 'id': task['id'],
@@ -55,7 +56,7 @@ def predict():
             temp['result']['prediction']['confidence'][category] = 1.0
             result.append(temp)
 
-        send_result = requests.post(f'{BASE_API_URL}/tasks', json=result)
+        send_result = requests.post(f'{CFA_URL}/tasks', json=result)
         print(send_result.text)
 
         if TEST:
@@ -63,12 +64,12 @@ def predict():
 
 
 def register():
-    register_url = f'{BASE_API_URL}/models'
+    register_url = f'{CFA_URL}/models'
 
     result = requests.post(register_url, data={
         "name": "rumors-ai-bow",
         "realTime": False,
-        "categoryMapping": DEFAULT_CATEGORY_MAPPING
+        "categoryMapping": CATEGORY_MAPPING
     })
 
     print(result)
